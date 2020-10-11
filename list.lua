@@ -1,6 +1,7 @@
 local M = {}
 
--- to enforce that clients can't use the raw-methods' table, we do _this_.
+-- to enforce that clients can't use the raw-methods' table, we wrap the object in
+-- a 'create' method.
 function M.create ()
 	local list = {}
 	list.__index = list
