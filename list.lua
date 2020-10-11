@@ -43,8 +43,8 @@ function M.create ()
 	-- non-destructive
 	function list:__tostring ()
 		return self:fold(function (result, item)
-			return result..","..tostring(item)
-		end, "list:")
+			return result..","..tostring(item).."\n"
+		end, "")
 	end
 
 	-- non-destructive
@@ -89,6 +89,7 @@ function M.create ()
 
 	-- append alist to the end of self
 	-- destructive
+	--[[
 	function list:nconc (alist)
 		local orig = self
 
@@ -100,6 +101,20 @@ function M.create ()
 
 		return orig
 	end
+	--]]
+
+	-- Return the first element satisfying the predicate
+	-- non-destructive
+	function list:find (fn)
+		for node in pairs(self) do
+			if fn(node.car) then
+				return node.car
+			end
+		end
+
+		return nil
+	end
+
 
 	-- Bootstrap __tostring for all future conses that occur off of
 	-- this instance of 'list'

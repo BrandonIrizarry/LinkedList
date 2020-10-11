@@ -30,11 +30,12 @@ function M.initVariableSystem ()
 	return createVariable
 end
 
+--[[
 local createVariable = M.initVariableSystem()
 
 print(createVariable("x", "int", "field"))
 print(createVariable("y", "int", "field"))
 print(createVariable("a", "Array", "static"))
 print(createVariable("z", "String", "field"))
-
+--]]
 return M
