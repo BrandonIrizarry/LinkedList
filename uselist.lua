@@ -7,8 +7,16 @@ list = list:cons("apple")
 list = list:cons("orange")
 list = list:cons("grape")
 
-M.list = list
+local count = 0
+for node in pairs(list) do
+	count = count + 1
+end
 
+print(count)
+
+print(list:length())
+
+--[[
 local list2 = listCreator.create()
 
 list2 = list2:cons("pineapple")
@@ -29,5 +37,5 @@ function M.run ()
 	print(list2)
 	print(list:append(list2)
 end
-
+--]]
 return M
