@@ -77,6 +77,7 @@ function M.create ()
 	end
 
 	-- non-destructive append
+	-- appends alist to the end of self
 	function list:append (alist)
 		if not self.cdr then
 			return alist
@@ -116,6 +117,15 @@ function M.create ()
 		return nil
 	end
 
+	function list:length ()
+		local count = 0
+
+		for node in pairs(self) do
+			count = count + 1
+		end
+
+		return count - 1 -- offset for the root
+	end
 
 	-- Bootstrap __tostring for all future conses that occur off of
 	-- this instance of 'list'
