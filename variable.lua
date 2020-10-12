@@ -7,11 +7,13 @@ local system = {
 	var = -1
 }
 
-function M.reset (...)
+function M.reset (self, ...)
 	for i = 1, select("#", ...) do
 		local given = select(i, ...)
 		system[given] = -1
 	end
+
+	return self
 end
 
 local methods = {}
