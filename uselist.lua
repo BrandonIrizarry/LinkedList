@@ -28,9 +28,24 @@ end
 --pipe1(list)
 --pipe2(list)
 
+local empty = listCreator.create()
 
-print(list:length())
+local function pipe3 (alist)
+	print(alist == empty)
+end
 
+local function pipe4 (alist)
+	print(alist == empty)
+	alist = alist:cons("more fruit")
+	print(alist == empty)
+end
+
+pipe1(empty)
+pipe2(empty)
+print(empty)
+print(pipe3(empty))
+print(pipe4(empty))
+-- need to make sure that an empty list doesn't become shared memory
 --[[
 local list2 = listCreator.create()
 
