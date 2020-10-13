@@ -12,7 +12,7 @@ list = list:cons("papaya")
 
 --print(list:length())
 
---print(list.signpost)
+print(list.signpost)
 
 -- make sure memory (lists) don't get shared across different function calls
 local function pipe1 (alist)
@@ -47,6 +47,16 @@ print(pipe3(empty))
 print(pipe4(empty))
 
 print(list == list, list == list:copy())
+
+local nicelist = list:copy()
+
+print(nicelist.signpost)
+
+print(nicelist)
+print("after reversal:")
+local backwards = nicelist:reverse()
+print(backwards)
+print(backwards:length() == nicelist:length())
 
 -- need to make sure that an empty list doesn't become shared memory
 --[[

@@ -131,9 +131,28 @@ function M.create ()
 		return count - 1 -- offset for the root
 	end
 
+	-- non-destructive
+	-- return a reversed copy of the given list
+	local function fresh ()
+		return setmetatable({__tostring = list.__tostring, __pairs = list.__pairs}, list)
+	end
+
+	function list:reverse ()
+		local rev = fresh()
+
+		for node in pairs(self) do
+			if node.cdr then
+				rev = rev:cons(node.car)
+			end
+		end
+
+		return rev
+	end
+
 	-- Bootstrap __tostring for all future conses that occur off of
 	-- this instance of 'list'
-	return setmetatable({__tostring = list.__tostring, __pairs = list.__pairs}, list)
+	--return setmetatable({__tostring = list.__tostring, __pairs = list.__pairs}, list)
+	return fresh()
 end
 
 return M
