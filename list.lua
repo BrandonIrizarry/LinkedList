@@ -9,8 +9,8 @@ function M.create ()
 	-- non-destructive
 	function list:cons (item)
 		self.__index = self
-		return setmetatable({car = item, cdr = self, __tostring = self.__tostring,
-			__pairs = self.__pairs}, self)
+		local node = {car = item, cdr = self, __tostring = self.__tostring, __pairs = self.__pairs}
+		return setmetatable(node, self)
 	end
 
 	-- non-destructive
