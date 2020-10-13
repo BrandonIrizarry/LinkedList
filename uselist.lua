@@ -5,14 +5,29 @@ local list = listCreator.create()
 
 list = list:cons("apple")
 list = list:cons("orange")
-list = list:cons("grape")
+list.signpost = "fruit stand"
 
-local count = 0
-for node in pairs(list) do
-	count = count + 1
+list = list:cons("grape")
+list = list:cons("papaya")
+
+--print(list:length())
+
+--print(list.signpost)
+
+-- make sure memory (lists) don't get shared across different function calls
+local function pipe1 (alist)
+	alist = alist:cons("raspberry")
+	alist = alist:map(function (x) return x end)
 end
 
-print(count)
+local function pipe2 (alist)
+	alist = alist:cons("lychee")
+	alist =  alist:map(function (x) return x end)
+end
+
+--pipe1(list)
+--pipe2(list)
+
 
 print(list:length())
 
