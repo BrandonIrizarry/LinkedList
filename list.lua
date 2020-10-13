@@ -13,6 +13,10 @@ function M.create ()
 		return setmetatable(node, self)
 	end
 
+	function list:copy ()
+		return self.cdr:cons(self.car)
+	end
+
 	-- non-destructive
 	function list:map (fn)
 		if not self.cdr then return self end

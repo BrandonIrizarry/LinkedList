@@ -45,6 +45,9 @@ pipe2(empty)
 print(empty)
 print(pipe3(empty))
 print(pipe4(empty))
+
+print(list == list, list == list:copy())
+
 -- need to make sure that an empty list doesn't become shared memory
 --[[
 local list2 = listCreator.create()
