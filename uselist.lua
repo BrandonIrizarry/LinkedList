@@ -58,6 +58,11 @@ local backwards = nicelist:reverse()
 print(backwards)
 print(backwards:length() == nicelist:length())
 
+print(empty:length())
+local empty2 = empty:copy()
+print(empty2:length())
+print(empty == empty2)
+
 -- need to make sure that an empty list doesn't become shared memory
 --[[
 local list2 = listCreator.create()
