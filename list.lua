@@ -6,6 +6,10 @@ function M.create ()
 	local list = {}
 	list.__index = list
 
+	local function fresh ()
+		return setmetatable({__tostring = list.__tostring, __pairs = list.__pairs}, list)
+	end
+
 	-- non-destructive
 	function list:cons (item)
 		self.__index = self
