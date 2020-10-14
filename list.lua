@@ -18,6 +18,8 @@ function M.create ()
 	end
 
 	function list:copy ()
+		if not self.cdr then return fresh() end
+
 		return self.cdr:cons(self.car)
 	end
 
