@@ -1,11 +1,6 @@
 local list = {}
 list.__index = list
 
--- Add a node to the current branch
-function list:cons (item)
-	return setmetatable({car = item, cdr = self}, list)
-end
-
 function list:foreach (fn)
 	while self.cdr do
 		fn(self.car)
@@ -48,8 +43,29 @@ function list:find (fn)
 	end
 end
 
+-- Append 'alist' to the tip of the branch 'list' currently references
+function list:append (alist)
+	local root = alist:root()
+
+	if list:root() == root then
+		error("Cannot append one branch onto another", 2)
+	end
+
+
+end
+
 local function create ()
-	return setmetatable({}, list)
+	local empty = {}
+	empty.__index = empty
+	empty.__tostring = list.__tostring
+	empty.root = empty
+
+	-- Add a node to the current branch
+	function empty:cons (item)
+		return setmetatable({car = item, cdr = self}, empty)
+	end
+
+	return setmetatable(empty, list)
 end
 
 return {create = create}
