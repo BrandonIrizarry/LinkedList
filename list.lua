@@ -10,13 +10,6 @@ local function create ()
 
 	function list:cons (item)
 		local node = {car = item, cdr = self}
-
-		if self.root == self then
-			self.forward = node
-		else
-			self.forward = false
-		end
-
 		node.__tostring = self.__tostring
 		node.__index = node
 
@@ -46,7 +39,7 @@ local function create ()
 
 	function list:find (fn)
 		while self.cdr do
-			if fn(self.car) then return self end
+			if fn(self) then return self end
 			self = self.cdr
 		end
 	end
@@ -62,32 +55,34 @@ local function create ()
 		return result
 	end
 
-	function list:append (alist)
-
-	end
-
 	local empty = {}
-	empty.root = empty
 	empty.__index = empty
 	empty.__tostring = list.__tostring
+
+	function list:first ()
+		return self:find(function (node) return node.cdr == empty end)
+	end
+
+	function list:append (alist)
+		local first = alist:first()
+
+		first.cdr = self
+	end
 
 	return setmetatable(empty, list)
 end
 
-local function p (x)
+local function p (...)
 	print("---")
-	print(x)
+	print(...)
 end
 
 local list = create()
-print(assert(not list.forward))
 list2 = list:cons("a")
-print(assert(list.forward))
 list2:foreach(function (x) print(x) end)
 p(list2:length())
 list2 = list2:cons("petunia"):cons("rose")
 p(list2)
-assert(not list2.forward)
 
 
 p(list2.root == list.root)
@@ -101,7 +96,7 @@ list2 = list2:cons("on this side"):cons("and then some")
 p(flist2)
 p(list2)
 
-local a_node = flist2:find(function (x) return x == "a" end)
+local a_node = flist2:find(function (x) return x.car == "a" end)
 p(a_node.car)
 
 local numbers = create()
@@ -112,53 +107,19 @@ end
 
 p(numbers:fold(function (x, sum) return sum + x end, 0))
 
---[[
-list1 = list:cons(1)
-print(list)
-print(list1)
-list2 = list:cons("w")
-print(list)
-print(list1)
-print(list2)
---]]
-	--[=[
+p(numbers:first().car)
 
-function list:length ()
-	return self:fold(function (sum) return sum + 1 end, 0)
+local bigger = create()
+
+for i = 101, 105 do
+	bigger = bigger:cons(i)
 end
 
-function list:find (fn)
-	while self.cdr do
-		if fn(self.car) then
-			return self.car
-		end
-	end
-end
+p(bigger)
+p(list2)
 
--- Append 'alist' to the tip of the branch 'list' currently references
-function list:append (alist)
-	local root = alist:root()
+bigger:append(list2)
 
-	if list:root() == root then
-		error("Cannot append one branch onto another", 2)
-	end
-
-
-end
-
-local function create ()
-	local empty = {}
-	empty.__index = empty
-	empty.__tostring = list.__tostring
-	empty.root = empty
-
-	-- Add a node to the current branch
-	function empty:cons (item)
-		return setmetatable({car = item, cdr = self}, empty)
-	end
-
-	return setmetatable(empty, list)
-end
+p(list2, list2:length())
 
 return {create = create}
---]=]
