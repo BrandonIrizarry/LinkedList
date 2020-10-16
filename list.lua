@@ -1,164 +1,55 @@
-local M = {}
+local list = {}
+list.__index = list
 
--- to enforce that clients can't use the raw-methods' table, we wrap the object in
--- a 'create' method.
-function M.create ()
-	local list = {}
-	list.__index = list
-
-	local function fresh ()
-		return setmetatable({__tostring = list.__tostring, __pairs = list.__pairs}, list)
-	end
-
-	-- non-destructive
-	function list:cons (item)
-		self.__index = self
-		local node = {car = item, cdr = self, __tostring = self.__tostring, __pairs = self.__pairs}
-		return setmetatable(node, self)
-	end
-
-	function list:copy ()
-		if not self.cdr then return fresh() end
-
-		return self.cdr:cons(self.car)
-	end
-
-	-- non-destructive
-	function list:map (fn)
-		if not self.cdr then return self end
-
-		local newCdr = self.cdr:map(fn)
-		return newCdr:cons(fn(self.car))
-	end
-
-	-- non-destructive ('fn' is called for its side effect)
-	function list:foreach (fn)
-		while self.cdr do
-			fn(self.car)
-			self = self.cdr
-		end
-	end
-
-	-- non-destructive
-	function list:fold (fn, initial)
-		local result = initial
-
-		while self.cdr do
-			result = fn(result, self.car)
-			self = self.cdr
-		end
-
-		return result
-	end
-
-	-- non-destructive
-	function list:__tostring ()
-		return self:fold(function (result, item)
-			return result..","..tostring(item).."\n"
-		end, "")
-	end
-
-	-- non-destructive
-	-- the 'head' is the first car of the list to be iterated over
-	-- see PIL 4, p. 176
-	function list.getnext (head, node)
-		if not node then
-			return head
-		else
-			return node.cdr
-		end
-	end
-
-	function list:__pairs ()
-		return self.getnext, self, nil
-	end
-
-	-- non-destructive
-	function list:filter (fn)
-		if not self.cdr then return self end
-
-		local newCdr = self.cdr:filter(fn)
-
-		if fn(self.car) then
-			return newCdr:cons(self.car)
-		else
-			return newCdr
-		end
-	end
-
-	-- non-destructive append
-	-- appends alist to the end of self
-	function list:append (alist)
-		if not self.cdr then
-			return alist
-		elseif not alist.cdr then
-			return self
-		else
-			local newCdr = self.cdr:append(alist)
-			return newCdr:cons(self.car)
-		end
-	end
-
-	-- append alist to the end of self
-	-- destructive
-	--[[
-	function list:nconc (alist)
-		local orig = self
-
-		while self.cdr.cdr do
-			self = self.cdr
-		end
-
-		self.cdr = alist
-
-		return orig
-	end
-	--]]
-
-	-- Return the first element satisfying the predicate
-	-- non-destructive
-	function list:find (fn)
-		for node in pairs(self) do
-			if fn(node.car) then
-				return node.car
-			end
-		end
-
-		return nil
-	end
-
-	function list:length ()
-		local count = 0
-
-		for node in pairs(self) do
-			count = count + 1
-		end
-
-		return count - 1 -- offset for the root
-	end
-
-	-- non-destructive
-	-- return a reversed copy of the given list
-	local function fresh ()
-		return setmetatable({__tostring = list.__tostring, __pairs = list.__pairs}, list)
-	end
-
-	function list:reverse ()
-		local rev = fresh()
-
-		for node in pairs(self) do
-			if node.cdr then
-				rev = rev:cons(node.car)
-			end
-		end
-
-		return rev
-	end
-
-	-- Bootstrap __tostring for all future conses that occur off of
-	-- this instance of 'list'
-	--return setmetatable({__tostring = list.__tostring, __pairs = list.__pairs}, list)
-	return fresh()
+-- Add a node to the current branch
+function list:cons (item)
+	return setmetatable({car = item, cdr = self}, list)
 end
 
-return M
+function list:foreach (fn)
+	while self.cdr do
+		fn(self.car)
+		self = self.cdr
+	end
+end
+
+-- Print a branch
+function list:__tostring ()
+	local buffer = {}
+	self:foreach(function (item) buffer[#buffer + 1] = item end)
+	return table.concat(buffer, ",\n")
+end
+
+function list:fork ()
+	local item = self.car
+	return self.cdr:cons(item)
+end
+
+function list:fold (fn, initial)
+	local result = initial
+
+	while self.cdr do
+		result = fn(result, self.car)
+		self = self.cdr
+	end
+
+	return result
+end
+
+function list:length ()
+	return self:fold(function (sum) return sum + 1 end, 0)
+end
+
+function list:find (fn)
+	while self.cdr do
+		if fn(self.car) then
+			return self.car
+		end
+	end
+end
+
+local function create ()
+	return setmetatable({}, list)
+end
+
+return {create = create}
