@@ -68,4 +68,15 @@ local function create ()
 	return setmetatable(empty, list)
 end
 
+local list1 = create()
+list1 = list1:cons("x=4"):cons("y=5"):cons("z=6")
+print(list1)
+local list2 = create()
+list2 = list2:cons("a='hello'"):cons("b='goodbye'"):cons("c='how are you?'")
+print(list2)
+
+list2.root.cdr = list1
+
+print("---")
+print(list2, list2:length())
 return {create = create}
