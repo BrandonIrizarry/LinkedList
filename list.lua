@@ -1,12 +1,63 @@
-local list = {}
-list.__index = list
+-- creates a new inheritance chain...
+local function create ()
+	-- root of the current list
+	local list = {}
+	local list = setmetatable({}, {__tostring = function ()
+		return "<empty>"
+	end,
 
-function list:foreach (fn)
-	while self.cdr do
-		fn(self.car)
-		self = self.cdr
+	-- the root node must still have a cdr field
+	cdr = function (self)
+		return nil
+	end})
+
+	list.__index = list
+	list.root = list
+
+	function list:__tostring ()
+		local buffer = {}
+		self:foreach(function (item) buffer[#buffer + 1] = item end)
+		return table.concat(buffer, ",\n")
 	end
+
+	function list:cons (item)
+		return setmetatable({car = item, __tostring = self.__tostring}, self)
+	end
+
+	function list:cdr ()
+		return getmetatable(self)
+	end
+
+	function list:foreach (fn)
+		repeat
+			fn(self.car)
+			local cdr = self:cdr()
+			self = cdr
+		until not cdr
+	end
+
+	return list
 end
+
+local list = create()
+print(list)
+
+list1 = list:cons(1)
+print(list)
+print(list1)
+list2 = list:cons("w")
+print(list)
+print(list1)
+print(list2)
+
+	--[=[
+
+	function list:foreach (fn)
+		while self.cdr do
+			fn(self.car)
+			self = self.cdr
+		end
+	end
 
 -- Print a branch
 function list:__tostring ()
@@ -69,3 +120,4 @@ local function create ()
 end
 
 return {create = create}
+--]=]
