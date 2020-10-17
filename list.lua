@@ -58,6 +58,7 @@ local function create ()
 	local empty = {}
 	empty.__index = empty
 	empty.__tostring = list.__tostring
+	empty.root = empty
 
 	function list:first ()
 		return self:find(function (node) return node.cdr == empty end)

@@ -1,12 +1,9 @@
 local List = require "list"
-
 local list = List.create()
 
 list.field = -1
 list.static = -1
 list.closed = {} -- set
-
-print(list)
 
 -- augmented cons operation.
 function list:addVar (segment, datatype, name)
@@ -34,6 +31,7 @@ function list:addVar (segment, datatype, name)
 	return self
 end
 
+
 function list:close (...)
 	for i = 1, select("#", ...) do
 		self.closed[select(i, ...)] = true
@@ -47,11 +45,34 @@ local function prettyPrint (list)
 	end)
 end
 
-list = list:cons("Main")
 list = list:addVar("field", "int", "x")
 list = list:addVar("static", "Array", "map")
 list = list:addVar("field", "String", "msg")
 list = list:addVar("static", "Array", "powerups")
+print(list)
+
+local mainList = List.create()
+
+mainList.classname = "Main"
+
+--[[
+	mainList <-- list
+
+	You have to make list's root a child of the tip of mainList.
+
+	list.root.cdr = mainList
+	setmetatable(list.root, mainList)
+
+	remarks: so forget about length and stuff like that for now (unless you refine folds, finds
+	etc. by specifying the fields you wish to select as you iterate down the structure).
+]]
+print(list.classname or "not yet")
+list.root.cdr = mainList
+print(list.classname or "not yet")
+setmetatable(list.root, mainList)
+print(list.classname or "something's broken")
+
+error("The file stops here")
 
 localList = list:fork()
 
