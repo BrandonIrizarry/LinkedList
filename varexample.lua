@@ -20,8 +20,16 @@ function list:addVar (segment, datatype, name)
 		error(msg, 2)
 	end
 
+	local variablePrint = {__tostring = function (v)
+		local line = string.format("%s %s %s %d", v.segment, v.datatype, v.name, v.index)
+		return line
+	end}
+
 	self[segment] = self[segment] + 1
-	self = self:cons({segment = segment, datatype = datatype, name = name, index = self[segment]})
+
+	local variable = {segment = segment, datatype = datatype, name = name, index = self[segment]}
+	setmetatable(variable, variablePrint)
+	self = self:cons(variable)
 
 	return self
 end
@@ -32,13 +40,14 @@ function list:close (...)
 	end
 end
 
+-- should use tostring for a given object
 local function prettyPrint (list)
 	list:foreach(function (x)
-		local msg = string.format("%s %s %s %d", x.segment, x.datatype, x.name, x.index)
-		print(msg)
+		print(x)
 	end)
 end
 
+list = list:cons("Main")
 list = list:addVar("field", "int", "x")
 list = list:addVar("static", "Array", "map")
 list = list:addVar("field", "String", "msg")
