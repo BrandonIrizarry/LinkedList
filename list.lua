@@ -4,7 +4,7 @@ local function create ()
 
 	function list:__tostring ()
 		local buffer = {}
-		self:foreach(function (item) buffer[#buffer + 1] = item end)
+		self:foreach(function (item) buffer[#buffer + 1] = tostring(item) end)
 		return table.concat(buffer, ",\n")
 	end
 
@@ -77,6 +77,7 @@ local function p (...)
 	print(...)
 end
 
+--[[
 local list = create()
 list2 = list:cons("a")
 list2:foreach(function (x) print(x) end)
@@ -121,5 +122,5 @@ p(list2)
 bigger:append(list2)
 
 p(list2, list2:length())
-
+--]]
 return {create = create}
