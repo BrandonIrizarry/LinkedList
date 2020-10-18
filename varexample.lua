@@ -1,3 +1,7 @@
+local function done ()
+	error("File ends here", 2)
+end
+
 local List = require "list"
 local list = List.create()
 
@@ -39,6 +43,7 @@ function list:close (...)
 end
 
 -- should use tostring for a given object
+
 local function prettyPrint (list)
 	list:foreach(function (x)
 		print(x)
@@ -49,30 +54,20 @@ list = list:addVar("field", "int", "x")
 list = list:addVar("static", "Array", "map")
 list = list:addVar("field", "String", "msg")
 list = list:addVar("static", "Array", "powerups")
-print(list)
+
+print(list:length())
 
 local mainList = List.create()
-
+print(mainList:length())
 mainList.classname = "Main"
 
---[[
-	mainList <-- list
-
-	You have to make list's root a child of the tip of mainList.
-
-	list.root.cdr = mainList
-	setmetatable(list.root, mainList)
-
-	remarks: so forget about length and stuff like that for now (unless you refine folds, finds
-	etc. by specifying the fields you wish to select as you iterate down the structure).
-]]
 print(list.classname or "not yet")
-list.root.cdr = mainList
-print(list.classname or "not yet")
-setmetatable(list.root, mainList)
+list:atop(mainList)
 print(list.classname or "something's broken")
 
-error("The file stops here")
+--print(list:length())
+
+done()
 
 localList = list:fork()
 
