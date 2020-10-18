@@ -39,7 +39,7 @@ local function create ()
 
 	function list:find (fn)
 		while self.cdr do
-			if fn(self) then return self end
+			if fn(self.car) then return self.car end
 			self = self.cdr
 		end
 	end
