@@ -55,20 +55,16 @@ local function create ()
 		return result
 	end
 
+	-- Doesn't create new node
+	function list:atop (alist)
+		self.root.cdr = alist
+		setmetatable(self.root, alist)
+	end
+
 	local empty = {}
 	empty.__index = empty
 	empty.__tostring = list.__tostring
 	empty.root = empty
-
-	function list:first ()
-		return self:find(function (node) return node.cdr == empty end)
-	end
-
-	function list:append (alist)
-		local first = alist:first()
-
-		first.cdr = self
-	end
 
 	return setmetatable(empty, list)
 end
