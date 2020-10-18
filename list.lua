@@ -18,7 +18,7 @@ local function create ()
 
 	function list:foreach (fn)
 		while self.cdr do
-			fn(self.car)
+			if self.car then fn(self.car) end
 			self = self.cdr
 		end
 	end
