@@ -65,9 +65,6 @@ print(list.classname or "not yet")
 list:atop(mainList)
 print(list.classname or "something's broken")
 
---print(list:length())
-
-done()
 
 localList = list:fork()
 
@@ -75,10 +72,9 @@ localList:close("static", "field")
 
 localList.argument = -1
 localList.var = -1
-
 localList = localList:addVar("argument", "int", "Ax")
+
 localList:close("argument")
-localList = localList:addVar("var", "boolean", "flag")
 localList = localList:addVar("var", "int", "i")
 --localList = localList:addVar("field", "int", "x") -- error
 prettyPrint(localList)
