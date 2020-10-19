@@ -30,11 +30,34 @@ local function create ()
 	end
 
 	function list:fork ()
+		-- being able to fork the empty list becomes important if a Jack class doesn't declare
+		-- any class variables. We need separate branches for separate subroutine declarations,
+		-- but there's no trunk - no common set of class variables.
 		if not self.cdr then
-			error("Empty list can't fork.", 2)
+			local empty = {}
+			empty.__index = empty -- unique to this node
+			empty.__tostring = list.__tostring
+			empty.__root = empty -- unique to this node
+
+			for name, value in pairs(self) do
+				if name:sub(1,2) ~= "__" then
+					empty[name] = value
+				end
+			end
+
+			return setmetatable(empty, list)
 		end
 
-		return self.cdr:cons(self.car)
+		local sibling = self.cdr:cons(self.car) -- 'car' is nil here
+
+		-- share self's metadata with sibling
+		for name, value in pairs(self) do
+			if name:sub(1,2) ~= "__" then -- e.g. copying '__index' wrongly diverts metatable lookups to 'self'
+				sibling[name] = value
+			end
+		end
+
+		return sibling
 	end
 
 	function list:find (fn)
@@ -57,14 +80,14 @@ local function create ()
 
 	-- Doesn't create new node
 	function list:atop (alist)
-		self.root.cdr = alist
-		setmetatable(self.root, alist)
+		self.__root.cdr = alist
+		setmetatable(self.__root, alist)
 	end
 
 	local empty = {}
 	empty.__index = empty
 	empty.__tostring = list.__tostring
-	empty.root = empty
+	empty.__root = empty
 
 	return setmetatable(empty, list)
 end
