@@ -1,67 +1,60 @@
 local function create ()
-	local list = {}
+	local printer = {}
+	printer.__tostring = function (l)
+		return ""
+	end
+
+	local list = setmetatable({}, printer)
+
 	list.__index = list
 
 	function list:__tostring ()
 		local buffer = {}
-		self:foreach(function (item) buffer[#buffer + 1] = tostring(item) end)
+
+		self:foreach(function (item)
+			buffer[#buffer + 1] = tostring(item)
+		end)
+
 		return table.concat(buffer, ",\n")
 	end
 
+	function list:cdr ()
+		local mt = getmetatable(self)
+		if mt == printer then return nil end -- at 'list', no parent
+
+		return mt
+	end
+
+	function list:foreach (fn)
+		while true do
+			local c = self:cdr()
+			if not c then break end -- at parent
+			if self.car then fn(self.car) end
+			self = c
+		end
+	end
+
 	function list:cons (item)
-		local node = {car = item, cdr = self}
+		local node = {car = item}
 		node.__tostring = self.__tostring
 		node.__index = node
 
 		return setmetatable(node, self)
 	end
 
-	function list:foreach (fn)
-		while self.cdr do
-			if self.car then fn(self.car) end
-			self = self.cdr
-		end
-	end
-
-	function list:length ()
-		local count = 0
-		self:foreach(function () count = count + 1 end)
-		return count
-	end
-
 	function list:fork ()
-		-- being able to fork the empty list becomes important if a Jack class doesn't declare
-		-- any class variables. We need separate branches for separate subroutine declarations,
-		-- but there's no trunk - no common set of class variables.
-		if not self.cdr then
-			local empty = {}
-			empty.__index = empty -- unique to this node
-			empty.__tostring = list.__tostring
-			empty.__root = empty -- unique to this node
+		local newCdr = self:cdr()
 
-			for name, value in pairs(self) do
-				if name:sub(1,2) ~= "__" then
-					empty[name] = value
-				end
-			end
-
-			return setmetatable(empty, list)
+		if newCdr then
+			return newCdr:cons(self.car)
+		else
+			print("in fork: no cdr")
+			return self:cons(false)
 		end
-
-		local sibling = self.cdr:cons(self.car) -- 'car' is nil here
-
-		-- share self's metadata with sibling
-		for name, value in pairs(self) do
-			if name:sub(1,2) ~= "__" then -- e.g. copying '__index' wrongly diverts metatable lookups to 'self'
-				sibling[name] = value
-			end
-		end
-
-		return sibling
 	end
 
 	function list:find (fn)
-		while self.cdr do
+		while selfcdr do
 			if fn(self.car) then return self.car end
 			self = self.cdr
 		end
@@ -70,26 +63,41 @@ local function create ()
 	function list:fold (fn, initial)
 		local result = initial
 
-		while self.cdr do
-			result = fn(result, self.car)
-			self = self.cdr
+		while true do
+			local c = self:cdr()
+			if not c then break end -- at parent
+			if self.car then result = fn(result, self.car) end
+			self = c
 		end
 
 		return result
 	end
 
-	-- Doesn't create new node
-	function list:atop (alist)
-		self.__root.cdr = alist
-		setmetatable(self.__root, alist)
-	end
-
-	local empty = {}
-	empty.__index = empty
-	empty.__tostring = list.__tostring
-	empty.__root = empty
-
-	return setmetatable(empty, list)
+	return list
 end
 
 return {create = create}
+
+--[[
+--tests
+local list = create()
+local menu = {"venison", "pork chops"}
+
+list.food = menu[2]
+local list2 = list:fork()
+local list3 = list:fork()
+assert(list2.food == menu[2])
+assert(list3.food == menu[2])
+list3 = list3:cons("venison")
+print("list 3:")
+print(list3)
+print("list 2:")
+print(list2)
+list4 = list3:fork()
+print("list 4:")
+
+local list = create():cons(3):cons(4):cons(5):fork():cons(6)
+print(list:fold(function (sum, x) return sum + x end, 0))
+
+]]
+
